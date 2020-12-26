@@ -7,9 +7,6 @@ function cellCreation(colIndex, rowIndex) {
 }
 function gridCreation(gridUnit) {
     const grid = document.querySelector('#grid');
-    grid.style.display = 'grid';
-    grid.style.width = '500px';
-    grid.style.height = '500px';
     grid.style.gridTemplateColumns = `repeat(${gridUnit}, 1fr)`;
     grid.style.gridTemplateRows = `repeat(${gridUnit}, 1fr)`;
     grid.addEventListener('contextmenu', e => e.preventDefault());

@@ -1,0 +1,74 @@
+/* reset default style */
+* {
+margin: 0;
+padding: 0;
+}
+a {
+    color: inherit;
+    text-decoration: none;
+}
+li {
+    list-style: none;
+}
+html {
+    scroll-behavior: smooth;
+}
+
+/* layout */
+body {
+    background-color: rgb(32, 46, 46);
+    padding-top: 10px;
+}
+#gameWindow, #title, #instruction, #toolbar, #grid {
+    margin: 0 auto;
+    text-align: center;
+}
+#title, #instruction, #toolbar {
+    font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+    margin-top: 10px;
+    color: whitesmoke;
+}
+#title {
+    background-image: linear-gradient(to left, violet, rgb(122, 34, 185), rgb(54, 54, 236), green, yellow, orange, red);
+    color: transparent;
+    background-clip: text;
+    -webkit-background-clip: text;
+    display: inline;
+}
+#instruction {
+    font-weight: bold;
+}
+#toolbar {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+#colorPickerLabel {
+    margin-left: 10px;
+}
+#colorPicker {
+    margin-left: 5px;
+    border: 0 solid transparent;
+    background: transparent;
+    width: 25px;
+    height: 25px;
+}
+#clearButton {
+    border: 2px solid rebeccapurple;
+    border-radius: 5px;
+    height: 25px;
+    padding: 2px 10px;
+    color: whitesmoke;
+    font-weight: bold;
+    background-color: royalblue;
+}
+#clearButton:hover {
+    border: 2px solid rgb(152, 86, 218);
+    background-color: rgb(102, 140, 255);
+}
+#grid {
+    display: grid;
+    width: 80vmin;
+    height: 80vmin;
+    margin-top: 20px;
+}

@@ -3,13 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
     <title>Etch a sketch</title>
 </head>
-<body style="background-color: lightblue;">
-    <button id="clearButton">New grid</button>
-    <h1>Press left for drawing and right for erase</h1>
-    <input type="color" name="colorPicker" id="colorPicker">
-    <div id="grid"></div>
+<body>
+    <main id="gameWindow">
+        <h1 id="title">Etch a sketch</h1>
+        <p id="instruction">Press left for drawing and right for erase</p>
+        <div id="toolbar">
+            <button id="clearButton">New grid, New size</button>
+            <label for="colorPicker" id="colorPickerLabel">Change your pen color</label>    
+            <input type="color" name="colorPicker" id="colorPicker">
+        </div>
+    
+        <div id="grid"></div>
+    </main>
 
     <script type="text/javascript" src="logic.js"></script>
 </body>
