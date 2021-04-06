@@ -1,24 +1,32 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="style.css">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="style.css" />
     <title>Etch a sketch</title>
-</head>
-<body>
-    <main id="gameWindow">
-        <h1 id="title">Etch a sketch</h1>
-        <p id="instruction">Press left for drawing and right for erase</p>
-        <div id="toolbar">
-            <button id="clearButton">New grid, New size</button>
-            <label for="colorPicker" id="colorPickerLabel">Change your pen color</label>    
-            <input type="color" name="colorPicker" id="colorPicker">
-        </div>
-    
-        <div id="grid"></div>
+  </head>
+  <body>
+    <main id="game-window">
+      <h1 id="title">Etch a sketch</h1>
+      <p id="instruction">Press left for drawing and right for erase</p>
+      <div id="toolbar">
+        <button
+          id="new-grid-btn"
+          title="This will clear and replace the current grid!"
+        >
+          Create a new grid
+        </button>
+        <label for="color-picker" id="color-picker-label"
+          >Change your pen color
+          <input type="color" name="color-picker" id="color-picker" />
+        </label>
+      </div>
+      <div id="history-palette"></div>
+
+      <div id="grid" onmousedown="return false"></div>
     </main>
 
     <script type="text/javascript" src="logic.js"></script>
-</body>
+  </body>
 </html>
