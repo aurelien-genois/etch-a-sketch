@@ -134,4 +134,6 @@ body {
   width: 80vmin;
   height: 80vmin;
   margin-top: 20px;
+  border: white solid 2px;
+  background: white;
 }
