@@ -128,6 +128,10 @@ body {
   cursor: crosshair;
 }
 
+#fillBtn {
+  background-color: gray;
+}
+
 /* grid */
 #grid {
   display: grid;
@@ -135,5 +139,5 @@ body {
   height: 80vmin;
   margin-top: 20px;
   border: white solid 2px;
-  background: white;
+  /* background: white; */
 }

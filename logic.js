@@ -1,26 +1,4 @@
-// CSS Tricks converter
-function hexAToRGBA(h) {
-  let r = 0,
-    g = 0,
-    b = 0,
-    a = 1;
-
-  if (h.length == 5) {
-    r = '0x' + h[1] + h[1];
-    g = '0x' + h[2] + h[2];
-    b = '0x' + h[3] + h[3];
-    a = '0x' + h[4] + h[4];
-  } else if (h.length == 9) {
-    r = '0x' + h[1] + h[2];
-    g = '0x' + h[3] + h[4];
-    b = '0x' + h[5] + h[6];
-    a = '0x' + h[7] + h[8];
-  }
-  a = +(a / 255).toFixed(3);
-
-  return 'rgba(' + +r + ',' + +g + ',' + +b + ',' + a + ')';
-}
-
+// adapt from CSS Tricks converter : https://css-tricks.com/converting-color-spaces-in-javascript/
 function RGBAToHex(rgba) {
   // Choose correct separator
   let sep = rgba.indexOf(',') > -1 ? ',' : ' ';
@@ -67,8 +45,11 @@ function addHexColor(color1, color2) {
   let newColor;
 
   if (color2[7] == undefined || (color2[7] == 'f' && color2[8] == 'f')) {
+    // if no transparency, return directly the color added
     return color2;
   } else {
+    // if transparency, combine the two colors
+    // convert hex to rgb values
     let r1 = +('0x' + color1[1] + color1[2]);
     let g1 = +('0x' + color1[3] + color1[4]);
     let b1 = +('0x' + color1[5] + color1[6]);
@@ -79,9 +60,10 @@ function addHexColor(color1, color2) {
     let b2 = +('0x' + color2[5] + color2[6]);
     let a2 = +('0x' + color2[7] + color2[8]);
 
-    a1 = (a1 / 255).toFixed(2);
-    a2 = (a2 / 255).toFixed(2);
+    a1 = (a1 / 255).toFixed(3);
+    a2 = (a2 / 255).toFixed(3);
 
+    // a solution thanks to: https://gist.github.com/JordanDelcros/518396da1c13f75ee057
     var base = [r1, g1, b1, a1];
     var added = [r2, g2, b2, a2];
 
@@ -99,24 +81,10 @@ function addHexColor(color1, color2) {
       (added[2] * added[3]) / mix[3] +
         (base[2] * base[3] * (1 - added[3])) / mix[3]
     ); // blue
-    console.log(mix);
-    // define here how the color are added (?)
-    // const opacityPercent = +(a2 / 255).toFixed(3);
-    // let a3 = 1 - (1 - +a2) * (1 - +a1);
-    // let r3 = Math.round((+r2 * +a2) / +a3 + (+r1 * +a1 * (1 - +a2)) / +a3);
-    // let g3 = Math.round((+g2 * +a2) / +a3 + (+g1 * +a1 * (1 - +a2)) / +a3);
-    // let b3 = Math.round((+b2 * +a2) / +a3 + (+b1 * +a1 * (1 - +a2)) / +a3);
-    // // let r3 = Math.round(+r1 + +r2 * opacityPercent);
-    // // let g3 = Math.round(+g1 + +g2 * opacityPercent);
-    // // let b3 = Math.round(+b1 + +b2 * opacityPercent);
-    // // let a3 = +a2;
-    // if (r3 > 255) r3 = r3 - 255;
-    // if (g3 > 255) g3 = g3 - 255;
-    // if (b3 > 255) b3 = b3 - 255;
-    // // if (a3 > 255) a3 = 255;
 
     newColor =
       '#' +
+      // convert back rgb to hex values
       mix[0].toString(16) +
       mix[1].toString(16) +
       mix[2].toString(16) +
@@ -126,43 +94,152 @@ function addHexColor(color1, color2) {
   }
 }
 
-const cellCreation = (colIndex, rowIndex) => {
-  let cell = document.createElement('div');
-  cell.style.backgroundColor = '#ffffff00';
-  cell.style.gridColumn = colIndex;
-  cell.style.gridRow = rowIndex;
-  ['mouseover', 'mousedown'].forEach((event) =>
-    cell.addEventListener(event, (e) => {
+const includesArray = (data, arr) => {
+  return data.some(
+    (e) => Array.isArray(e) && e.every((o, i) => Object.is(arr[i], o))
+  );
+};
+
+const getAdjacentCells = (x, y) => {
+  const allCells = [...grid.children];
+
+  const topCell = [x, y - 1];
+  const bottomCell = [x, y + 1];
+  const leftCell = [x - 1, y];
+  const rightCell = [x + 1, y];
+
+  // need to get the cells (array of Ids) around the target
+  // adjacent ids = target col -1/+1, target row -1/+1
+  // target col = grid-column-start; target row = grid-row-start:
+  const aroundCellsIds = [topCell, bottomCell, leftCell, rightCell];
+
+  return allCells.filter((cell) =>
+    includesArray(aroundCellsIds, [
+      +cell.style.gridRowStart,
+      +cell.style.gridColumnStart,
+    ])
+  );
+};
+
+const paint = (e) => {
+  switch (mode) {
+    case 'pen':
       if (e.buttons == 1) {
         const precColor = RGBAToHex(e.target.style.backgroundColor);
-
         const resultColor = addHexColor(precColor, color);
-        console.log(precColor, color, resultColor);
         e.target.style.backgroundColor = resultColor;
       }
       if (e.buttons == 2) {
-        e.target.style.backgroundColor = '#ffffff00';
+        e.target.style.backgroundColor = '#ffffffff';
       }
-    })
+      break;
+    case 'fill':
+      if (e.buttons == 1) {
+        // let cellsToCheck = [e.target];
+        const clickedTargetColor = e.target.style.backgroundColor;
+        console.log(clickedTargetColor);
+
+        let aroundCells = getAdjacentCells(
+          +e.target.style.gridRowStart,
+          +e.target.style.gridColumnStart
+        );
+
+        // at the start, aroundCells of e.target are the only cells to check
+        let cellsToCheck = [...aroundCells];
+        // then add aroundCells for each cell to check
+
+        console.log(RGBAToHex(clickedTargetColor), color);
+        if (
+          RGBAToHex(clickedTargetColor).substring(0, 7) == color.substring(0, 7)
+        ) {
+          // Prevent infinite loop when same color in the canvas without at least one full boundary
+          // (without transparency because color from backgroundColor is rbg, not rgba)
+          console.log('same color');
+
+          cellsToCheck = [];
+        }
+        while (cellsToCheck.length > 0) {
+          aroundCells.forEach((cell) => {
+            if (clickedTargetColor == cell.style.backgroundColor) {
+              // const precColor = RGBAToHex(cell.style.backgroundColor);
+              const precColor = RGBAToHex(clickedTargetColor);
+              const resultColor = addHexColor(precColor, color);
+              cell.style.backgroundColor = resultColor;
+              let adjacentCells = getAdjacentCells(
+                +cell.style.gridRowStart,
+                +cell.style.gridColumnStart
+              );
+              for (var i = 0; i < cellsToCheck.length; i++) {
+                for (var j = 0; j < adjacentCells.length; j++) {
+                  if (
+                    RGBAToHex(adjacentCells[j].style.backgroundColor) ==
+                    resultColor
+                  ) {
+                    // remove adjacent cell if already the same color as color
+                    adjacentCells.splice(j, 1);
+                  }
+                  if (cellsToCheck[i] === adjacentCells[j]) {
+                    // remove adjacent cell if already in cellToCheck
+                    adjacentCells.splice(j, 1);
+                  }
+                }
+                if (cellsToCheck[i] === cell) {
+                  // remove this cell from cellsToCheck
+                  cellsToCheck.splice(i, 1);
+                }
+              }
+              // add this cell adjacents cells to cellsToCheck
+              cellsToCheck.push(...adjacentCells);
+            } else {
+              for (var i = 0; i < cellsToCheck.length; i++) {
+                if (cellsToCheck[i] === cell) {
+                  // remove this cell from cellsToCheck
+                  cellsToCheck.splice(i, 1);
+                }
+              }
+            }
+            // check adjacent cells only if this cell is the same color e.target
+          });
+          aroundCells = [...cellsToCheck];
+        }
+
+        // e.target.style.backgroundColor = color;
+        fillBtn.style.backgroundColor = 'gray';
+        mode = 'pen';
+      }
+      if (e.buttons == 2) {
+        e.target.style.backgroundColor = '#ffffffff';
+      }
+      break;
+  }
+};
+
+const cellCreation = (colIndex, rowIndex) => {
+  let cell = document.createElement('div');
+  cell.style.backgroundColor = '#ffffffff';
+  cell.style.gridColumn = colIndex;
+  cell.style.gridRow = rowIndex;
+  ['mouseover', 'mousedown'].forEach((event) =>
+    cell.addEventListener(event, paint)
   );
   return cell;
 };
 
-const gridCreation = (gridUnit) => {
+const gridCreation = (gridUnitSize) => {
   const grid = document.querySelector('#grid');
-  grid.style.gridTemplateColumns = `repeat(${gridUnit}, 1fr)`;
-  grid.style.gridTemplateRows = `repeat(${gridUnit}, 1fr)`;
+  grid.style.gridTemplateColumns = `repeat(${gridUnitSize}, 1fr)`;
+  grid.style.gridTemplateRows = `repeat(${gridUnitSize}, 1fr)`;
   grid.addEventListener('contextmenu', (e) => e.preventDefault());
 
   let col = 1;
   let row = 1;
-  for (i = 1; i <= gridUnit ** 2; i++) {
+  for (i = 1; i <= gridUnitSize ** 2; i++) {
     const newCell = cellCreation(col, row);
     grid.appendChild(newCell);
     col++;
-    if (col > gridUnit) {
+    if (col > gridUnitSize) {
       row++;
-      col -= gridUnit;
+      col -= gridUnitSize;
     }
   }
 };
@@ -172,6 +249,7 @@ const GenerateNewGrid = (newGridUnit) => {
     grid.removeChild(grid.firstChild);
   }
   gridCreation(newGridUnit);
+  gridUnit = newGridUnit;
 };
 
 const createNewGridForm = () => {
@@ -222,14 +300,12 @@ const populateHistoryPalette = (colorValue) => {
   colorCell.style.background = colorValue;
   colorCell.addEventListener('click', (e) => {
     // the color from background style is in RGB, color input need an Hex color
-    // console.log(e.target.style.backgroundColor);
     color = RGBAToHex(e.target.style.backgroundColor);
     // apply current opacity to the color
-    // changeOpacity();
+    changeOpacity();
     // or reset opacityRange value
-    opacityRange.value = 100;
+    // opacityRange.value = 100;
     colorPicker.value = color.substr(0, 7);
-    // console.log(color);
   });
   if (historyPalette.children.length >= 21) {
     historyPalette.removeChild(historyPalette.lastElementChild);
@@ -256,14 +332,23 @@ const colorPicker = document.querySelector('#color-picker');
 const historyPalette = document.querySelector('#history-palette');
 colorPicker.addEventListener('change', (e) => {
   color = e.target.value;
+  changeOpacity();
   populateHistoryPalette(color);
 });
 
 const opacityRange = document.querySelector('#opacityRange');
 opacityRange.addEventListener('change', changeOpacity);
 
+let mode = 'pen';
+
+const fillBtn = document.querySelector('#fill-btn');
+fillBtn.addEventListener('click', () => {
+  fillBtn.style.backgroundColor = 'cyan';
+  mode = 'fill';
+});
+
 // default values
-let color = colorPicker.value;
+let color = colorPicker.value + 'ff';
 opacityRange.value = 100;
 
 let gridUnit = 16;
