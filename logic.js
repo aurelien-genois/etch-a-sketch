@@ -42,8 +42,6 @@ function RGBAToHex(rgba) {
 }
 
 function addHexColor(color1, color2) {
-  let newColor;
-
   if (color2[7] == undefined || (color2[7] == 'f' && color2[8] == 'f')) {
     // if no transparency, return directly the color added
     return color2;
@@ -82,15 +80,18 @@ function addHexColor(color1, color2) {
         (base[2] * base[3] * (1 - added[3])) / mix[3]
     ); // blue
 
-    newColor =
-      '#' +
-      // convert back rgb to hex values
-      mix[0].toString(16) +
-      mix[1].toString(16) +
-      mix[2].toString(16) +
-      Math.round(mix[3] * 255).toString(16);
+    // convert back rgb to hex values
+    let r3 = mix[0].toString(16);
+    let g3 = mix[1].toString(16);
+    let b3 = mix[2].toString(16);
+    let a3 = Math.round(mix[3] * 255).toString(16);
 
-    return newColor;
+    if (r3.length == 1) r3 = '0' + r3;
+    if (g3.length == 1) g3 = '0' + g3;
+    if (b3.length == 1) b3 = '0' + b3;
+    if (a3.length == 1) a3 = '0' + a3;
+
+    return '#' + r3 + g3 + b3 + a3;
   }
 }
 
@@ -137,7 +138,6 @@ const paint = (e) => {
       if (e.buttons == 1) {
         // let cellsToCheck = [e.target];
         const clickedTargetColor = e.target.style.backgroundColor;
-        console.log(clickedTargetColor);
 
         let aroundCells = getAdjacentCells(
           +e.target.style.gridRowStart,
@@ -148,12 +148,13 @@ const paint = (e) => {
         let cellsToCheck = [...aroundCells];
         // then add aroundCells for each cell to check
 
-        console.log(RGBAToHex(clickedTargetColor), color);
         if (
           RGBAToHex(clickedTargetColor).substring(0, 7) == color.substring(0, 7)
         ) {
           // Prevent infinite loop when same color in the canvas without at least one full boundary
           // (without transparency because color from backgroundColor is rbg, not rgba)
+          // ! filling with an opacity to 0 or above a certain level (with darker of black bg) still cause infinity
+          // ! similar problem with pen (without infinity) => in addHexColor() maybe ?
           console.log('same color');
 
           cellsToCheck = [];
@@ -343,8 +344,13 @@ let mode = 'pen';
 
 const fillBtn = document.querySelector('#fill-btn');
 fillBtn.addEventListener('click', () => {
-  fillBtn.style.backgroundColor = 'cyan';
-  mode = 'fill';
+  if (mode === 'fill') {
+    fillBtn.style.backgroundColor = 'gray';
+    mode = 'pen';
+  } else {
+    fillBtn.style.backgroundColor = 'cyan';
+    mode = 'fill';
+  }
 });
 
 // default values
