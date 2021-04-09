@@ -10,33 +10,42 @@
     <main id="game-window">
       <h1 id="title">Etch a sketch</h1>
       <p id="instruction">Press left for drawing and right for erase</p>
+      <div id="color-preview-bg">
+        <div id="color-preview"></div>
+      </div>
+      <div id="history-palette"></div>
       <div id="toolbar">
+        <label for="opacity-range">
+          Opacity:
+          <input
+            type="range"
+            name=""
+            value="100"
+            id="opacity-range"
+            min="0"
+            max="100"
+          />
+        </label>
+        <button id="fill-btn">fill mode</button>
+        <!-- for="color-picker" make the label clickable (at least on firefox), even withour for and input inside the label make the label clickable -->
+        <label for="color" id="color-picker-label"
+          ><span onclick="return false">Pen color:</span>
+          <input type="color" name="color-picker" id="color-picker" />
+        </label>
+      </div>
+
+      <div id="grid-container">
+        <div id="grid" onmousedown="return false"></div>
+      </div>
+
+      <div id="new-grid-zone">
         <button
           id="new-grid-btn"
           title="This will clear and replace the current grid!"
         >
           Create a new grid
         </button>
-        <label for="opacityRange">
-          Opacity:
-          <input
-            type="range"
-            name=""
-            value="100"
-            id="opacityRange"
-            min="0"
-            max="100"
-          />
-        </label>
-        <button id="fill-btn">fill mode</button>
-        <label for="color-picker" id="color-picker-label"
-          >Change your pen color
-          <input type="color" name="color-picker" id="color-picker" />
-        </label>
       </div>
-      <div id="history-palette"></div>
-
-      <div id="grid" onmousedown="return false"></div>
     </main>
 
     <script type="text/javascript" src="logic.js"></script>

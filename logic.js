@@ -1,5 +1,5 @@
-// adapt from CSS Tricks converter : https://css-tricks.com/converting-color-spaces-in-javascript/
 function RGBAToHex(rgba) {
+  // adapt from CSS Tricks converter : https://css-tricks.com/converting-color-spaces-in-javascript/
   // Choose correct separator
   let sep = rgba.indexOf(',') > -1 ? ',' : ' ';
   let startSubstr = rgba.indexOf('rgba') > -1 ? 5 : 4;
@@ -10,10 +10,8 @@ function RGBAToHex(rgba) {
   if (rgba[3] == undefined) {
     rgba.push('1');
   }
-
   // Strip the slash if using space-separated syntax
   if (rgba.indexOf('/') > -1) rgba.splice(3, 1);
-
   // Convert %s to 0–255
   for (let R in rgba) {
     let r = rgba[R];
@@ -27,12 +25,10 @@ function RGBAToHex(rgba) {
       }
     }
   }
-
   let r = (+rgba[0]).toString(16),
     g = (+rgba[1]).toString(16),
     b = (+rgba[2]).toString(16),
     a = Math.round(+rgba[3] * 255).toString(16);
-
   if (r.length == 1) r = '0' + r;
   if (g.length == 1) g = '0' + g;
   if (b.length == 1) b = '0' + b;
@@ -151,20 +147,16 @@ const paint = (e) => {
         if (
           RGBAToHex(clickedTargetColor).substring(0, 7) == color.substring(0, 7)
         ) {
-          // Prevent infinite loop when same color in the canvas without at least one full boundary
-          // (without transparency because color from backgroundColor is rbg, not rgba)
-          // ! filling with an opacity to 0 or above a certain level (with darker of black bg) still cause infinity
-          // ! similar problem with pen (without infinity) => in addHexColor() maybe ?
           console.log('same color');
 
           cellsToCheck = [];
         }
+        // const precColor = RGBAToHex(cell.style.backgroundColor);
+        const precColor = RGBAToHex(clickedTargetColor);
+        const resultColor = addHexColor(precColor, color);
         while (cellsToCheck.length > 0) {
           aroundCells.forEach((cell) => {
             if (clickedTargetColor == cell.style.backgroundColor) {
-              // const precColor = RGBAToHex(cell.style.backgroundColor);
-              const precColor = RGBAToHex(clickedTargetColor);
-              const resultColor = addHexColor(precColor, color);
               cell.style.backgroundColor = resultColor;
               let adjacentCells = getAdjacentCells(
                 +cell.style.gridRowStart,
@@ -204,8 +196,8 @@ const paint = (e) => {
           aroundCells = [...cellsToCheck];
         }
 
-        // e.target.style.backgroundColor = color;
-        fillBtn.style.backgroundColor = 'gray';
+        e.target.style.backgroundColor = resultColor;
+        fillBtn.classList.remove('active');
         mode = 'pen';
       }
       if (e.buttons == 2) {
@@ -227,7 +219,6 @@ const cellCreation = (colIndex, rowIndex) => {
 };
 
 const gridCreation = (gridUnitSize) => {
-  const grid = document.querySelector('#grid');
   grid.style.gridTemplateColumns = `repeat(${gridUnitSize}, 1fr)`;
   grid.style.gridTemplateRows = `repeat(${gridUnitSize}, 1fr)`;
   grid.addEventListener('contextmenu', (e) => e.preventDefault());
@@ -258,6 +249,7 @@ const createNewGridForm = () => {
   form.id = 'new-grid-form';
 
   const rangeLabel = document.createElement('label');
+  rangeLabel.id = 'new-grid-label';
   rangeLabel.setAttribute('for', 'new-grid-size-input');
   const rangeInput = document.createElement('input');
   rangeInput.type = 'range';
@@ -267,11 +259,15 @@ const createNewGridForm = () => {
   rangeInput.id = 'new-grid-size-input';
   rangeInput.name = 'new-grid-size-input';
   const rangeP = document.createElement('p');
+  rangeP.id = 'new-grid-size';
   rangeP.textContent = rangeInput.value;
   rangeInput.addEventListener('input', () => {
     rangeP.textContent = rangeInput.value;
   });
-  rangeLabel.append('Grid size:', rangeP, rangeInput);
+  const warningMsg = document.createElement('p');
+  warningMsg.id = 'new-grid-warning-msg';
+  warningMsg.textContent = 'This will clear and replace the current grid!';
+  rangeLabel.append('Grid size:', rangeP, rangeInput, warningMsg);
 
   const submit = document.createElement('input');
   submit.type = 'submit';
@@ -290,9 +286,14 @@ const displayNewGridForm = () => {
     const newGridSize = data.get('new-grid-size-input');
     e.preventDefault();
     GenerateNewGrid(newGridSize);
-    newGridForm.replaceWith(newGridBtn);
+
+    document.querySelector('#new-grid-label').style.height = '0px';
+    document.querySelector('#new-grid-label').style.opacity = '0';
+    setTimeout(() => {
+      newGridForm.replaceWith(newGridZone);
+    }, 1000);
   });
-  newGridBtn.replaceWith(newGridForm);
+  newGridZone.replaceWith(newGridForm);
 };
 
 const populateHistoryPalette = (colorValue) => {
@@ -303,10 +304,11 @@ const populateHistoryPalette = (colorValue) => {
     // the color from background style is in RGB, color input need an Hex color
     color = RGBAToHex(e.target.style.backgroundColor);
     // apply current opacity to the color
-    changeOpacity();
     // or reset opacityRange value
     // opacityRange.value = 100;
+    populateHistoryPalette(color);
     colorPicker.value = color.substr(0, 7);
+    changeOpacity();
   });
   if (historyPalette.children.length >= 21) {
     historyPalette.removeChild(historyPalette.lastElementChild);
@@ -314,19 +316,44 @@ const populateHistoryPalette = (colorValue) => {
   historyPalette.prepend(colorCell);
 };
 
+const updateColorPreview = () => {
+  const colorPreview = document.querySelector('#color-preview');
+  colorPreview.style.backgroundColor = color;
+};
+
 const changeOpacity = () => {
   const opacityValue = opacityRange.value / 100;
 
-  let hexValue = Math.round(+opacityValue * 255).toString(16);
-  if (hexValue.length == 1) hexValue = '0' + hexValue;
+  let opacityHexValue = Math.round(+opacityValue * 255).toString(16);
+  if (opacityHexValue.length == 1) opacityHexValue = '0' + opacityHexValue;
 
   if (color.length > 7) {
+    // if already an hex opacity, remove it
     color = color.substring(0, 7);
   }
-  color += hexValue;
+  color += opacityHexValue;
+  updateColorPreview();
 };
 
+const grid = document.querySelector('#grid');
+grid.addEventListener('mouseover', (e) => {
+  // to update the cursor
+  if (mode === 'fill') {
+    grid.style.cursor = "url('fill.png') 0 50, pointer";
+  } else {
+    switch (e.buttons) {
+      case 1:
+      case 0:
+        grid.style.cursor = "url('pen.png') 0 50, pointer";
+        break;
+      case 2:
+        grid.style.cursor = "url('eraser.png') 0 50, pointer";
+    }
+  }
+});
+
 const newGridBtn = document.querySelector('#new-grid-btn');
+const newGridZone = document.querySelector('#new-grid-zone');
 newGridBtn.addEventListener('click', displayNewGridForm);
 
 const colorPicker = document.querySelector('#color-picker');
@@ -337,7 +364,7 @@ colorPicker.addEventListener('change', (e) => {
   populateHistoryPalette(color);
 });
 
-const opacityRange = document.querySelector('#opacityRange');
+const opacityRange = document.querySelector('#opacity-range');
 opacityRange.addEventListener('change', changeOpacity);
 
 let mode = 'pen';
@@ -345,16 +372,17 @@ let mode = 'pen';
 const fillBtn = document.querySelector('#fill-btn');
 fillBtn.addEventListener('click', () => {
   if (mode === 'fill') {
-    fillBtn.style.backgroundColor = 'gray';
+    fillBtn.classList.remove('active');
     mode = 'pen';
   } else {
-    fillBtn.style.backgroundColor = 'cyan';
+    fillBtn.classList.add('active');
     mode = 'fill';
   }
 });
 
 // default values
 let color = colorPicker.value + 'ff';
+updateColorPreview();
 opacityRange.value = 100;
 
 let gridUnit = 16;
