@@ -53,19 +53,27 @@ body {
   width: inherit;
   height: inherit;
 }
+#toolbar,
+#history-palette,
+#grid-container {
+  width: 80vmin;
+  min-width: 500px;
+}
 
 /* history palette */
 #history-palette {
-  width: 80vmin;
   margin: 10px auto;
   display: flex;
 }
 .used-color {
-  width: 3vw;
-  height: 3vw;
+  width: 3vmin;
+  height: 3vmin;
+  min-width: 18px;
+  min-height: 18px;
   border: white solid 1px;
   background: gray;
-  margin-right: 0.5vw;
+  margin-right: 2px;
+  margin-left: 2px;
   cursor: crosshair;
 }
 
@@ -82,7 +90,6 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  width: 80vmin;
   box-sizing: border-box;
 }
 #opacity-range {
@@ -135,8 +142,8 @@ body {
   justify-content: center;
   align-items: center;
   margin: 20px auto 0 auto;
-  width: 80vmin;
   height: 80vmin;
+  min-height: 500px;
   margin-top: 20px;
 }
 
