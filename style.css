@@ -103,6 +103,8 @@ body {
   color: inherit;
   padding: 4px 6px;
   border-radius: 5px;
+  color: whitesmoke;
+  font-weight: bold;
 }
 #fill-btn:hover {
   background-color: rgb(121, 121, 121);
