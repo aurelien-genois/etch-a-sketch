@@ -4,8 +4,10 @@
 }
 
 /* layout */
+html {
+  background: url('./bg.png') repeat center center fixed;
+}
 body {
-  background-color: rgb(20, 29, 29);
   padding-top: 10px;
   color: whitesmoke;
   font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande',
