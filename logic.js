@@ -154,6 +154,7 @@ const paint = (e) => {
         // const precColor = RGBAToHex(cell.style.backgroundColor);
         const precColor = RGBAToHex(clickedTargetColor);
         const resultColor = addHexColor(precColor, color);
+        let count = 0;
         while (cellsToCheck.length > 0) {
           aroundCells.forEach((cell) => {
             if (clickedTargetColor == cell.style.backgroundColor) {
@@ -194,11 +195,18 @@ const paint = (e) => {
             // check adjacent cells only if this cell is the same color e.target
           });
           aroundCells = [...cellsToCheck];
+          if (cellsToCheck.length > 0) {
+            count++;
+          }
+          // prevent an infinite loop if to much fill
+          if (count > 1000) {
+            cellsToCheck = [];
+            break;
+          }
+          console.log('count', count);
         }
 
         e.target.style.backgroundColor = resultColor;
-        fillBtn.classList.remove('active');
-        mode = 'pen';
       }
       if (e.buttons == 2) {
         e.target.style.backgroundColor = '#ffffffff';
@@ -254,8 +262,8 @@ const createNewGridForm = () => {
   const rangeInput = document.createElement('input');
   rangeInput.type = 'range';
   rangeInput.min = '4';
-  rangeInput.max = '100';
-  rangeInput.value = '50';
+  rangeInput.max = '50';
+  rangeInput.value = '20';
   rangeInput.id = 'new-grid-size-input';
   rangeInput.name = 'new-grid-size-input';
   const rangeP = document.createElement('p');
@@ -306,7 +314,6 @@ const populateHistoryPalette = (colorValue) => {
     // apply current opacity to the color
     // or reset opacityRange value
     // opacityRange.value = 100;
-    populateHistoryPalette(color);
     colorPicker.value = color.substr(0, 7);
     changeOpacity();
   });
@@ -360,8 +367,8 @@ const colorPicker = document.querySelector('#color-picker');
 const historyPalette = document.querySelector('#history-palette');
 colorPicker.addEventListener('change', (e) => {
   color = e.target.value;
-  changeOpacity();
   populateHistoryPalette(color);
+  changeOpacity();
 });
 
 const opacityRange = document.querySelector('#opacity-range');
@@ -369,13 +376,18 @@ opacityRange.addEventListener('change', changeOpacity);
 
 let mode = 'pen';
 
-const fillBtn = document.querySelector('#fill-btn');
-fillBtn.addEventListener('click', () => {
+const paintModeSwitch = document.querySelector('#paint-mode-switch');
+const paintModeSwitchText = document.querySelector('#paint-mode-switch-text');
+paintModeSwitch.checked = false;
+paintModeSwitch.addEventListener('click', () => {
   if (mode === 'fill') {
-    fillBtn.classList.remove('active');
+    // strangely, the checkbox is not really checked (maybe because the onclick="return false" on its parent label)
+    paintModeSwitch.checked = false;
+    paintModeSwitchText.textContent = 'Pen';
     mode = 'pen';
   } else {
-    fillBtn.classList.add('active');
+    paintModeSwitch.checked = true;
+    paintModeSwitchText.textContent = 'Fill';
     mode = 'fill';
   }
 });

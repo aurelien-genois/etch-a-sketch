@@ -96,23 +96,63 @@ body {
   margin-left: 5px;
   cursor: pointer;
 }
-#fill-btn {
+
+#paint-mode-switch-container {
+  position: relative;
+  display: flex;
+  height: 22px;
+}
+#paint-mode-switch {
+  position: absolute;
+  left: 0;
+  opacity: 0.01;
+}
+#paint-mode-switch + label {
+  position: relative;
+  padding-left: 44px;
   cursor: pointer;
-  background-color: rgb(97, 97, 97);
-  border: rgb(129, 129, 129) outset 3px;
-  color: inherit;
-  padding: 4px 6px;
-  border-radius: 5px;
-  color: whitesmoke;
-  font-weight: bold;
 }
-#fill-btn:hover {
-  background-color: rgb(121, 121, 121);
-  border: rgb(141, 141, 141) outset 3px;
+#paint-mode-switch:not(:checked) + label::before,
+#paint-mode-switch:checked + label::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 46px;
+  height: 18px;
+  border: rgb(161, 161, 129) solid 2px;
+  border-radius: 9px;
+  background-color: rgb(182, 182, 154);
+  display: inline-block;
 }
-#fill-btn.active {
-  background-color: rgb(73, 73, 73);
-  border: rgb(92, 92, 92) inset 3px;
+
+#paint-mode-switch:not(:checked) + label::after,
+#paint-mode-switch:checked + label::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 18px;
+  height: 18px;
+  border-radius: 9px;
+  background-color: rgb(236, 236, 204);
+  transition: transform 0.15s ease-in-out;
+}
+
+#paint-mode-switch:not(:checked) + label::after {
+  transform: translate(0px, 0px);
+}
+#paint-mode-switch:checked + label::after {
+  transform: translate(28px, 0px);
+}
+#paint-mode-switch-text {
+  padding-left: 10px;
+  padding-top: 2px;
+  width: 20px;
+}
+
+#color-picker-container {
+  display: flex;
 }
 #color-picker-label {
   display: flex;

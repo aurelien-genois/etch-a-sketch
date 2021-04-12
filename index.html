@@ -26,12 +26,22 @@
             max="100"
           />
         </label>
-        <button id="fill-btn">fill mode</button>
-        <!-- for="color-picker" make the label clickable (at least on firefox), even withour for and input inside the label make the label clickable -->
-        <label for="color" id="color-picker-label"
-          ><span onclick="return false">Pen color:</span>
+        <div id="paint-mode-switch-container">
+          <input type="checkbox" id="paint-mode-switch" name="mode" />
+          <!-- label for switch style -->
+          <label for="paint-mode-switch" id="paint-mode-switch-label"> </label>
+          <!-- not clickable label text outside -->
+          <p id="paint-mode-switch-text">Pen</p>
+        </div>
+        <div id="color-picker-container">
+          <label
+            for="color-picker"
+            onclick="return false"
+            id="color-picker-label"
+            >Change color:
+          </label>
           <input type="color" name="color-picker" id="color-picker" />
-        </label>
+        </div>
       </div>
 
       <div id="grid-container">
