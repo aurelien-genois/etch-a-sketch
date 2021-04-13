@@ -295,8 +295,10 @@ const displayNewGridForm = () => {
     e.preventDefault();
     GenerateNewGrid(newGridSize);
 
-    document.querySelector('#new-grid-label').style.height = '0px';
     document.querySelector('#new-grid-label').style.opacity = '0';
+    document.querySelector('#new-grid-form').style.borderColor = 'transparent';
+    document.querySelector('#new-grid-form').style.backgroundColor =
+      'transparent';
     setTimeout(() => {
       newGridForm.replaceWith(newGridZone);
     }, 1000);

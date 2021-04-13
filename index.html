@@ -8,11 +8,12 @@
   </head>
   <body>
     <main id="game-window">
-      <h1 id="title">Etch a sketch</h1>
-      <p id="instruction">Press left for drawing and right for erase</p>
-      <div id="color-preview-bg">
-        <div id="color-preview"></div>
-      </div>
+      <header id="header">
+        <h1 id="title">Etch a sketch</h1>
+        <div id="color-preview-bg">
+          <div id="color-preview"></div>
+        </div>
+      </header>
       <div id="history-palette"></div>
       <div id="toolbar">
         <label for="opacity-range">
@@ -49,6 +50,8 @@
       </div>
 
       <div id="new-grid-zone">
+        <p id="instruction">Press left for drawing and right for erase</p>
+
         <button
           id="new-grid-btn"
           title="This will clear and replace the current grid!"
