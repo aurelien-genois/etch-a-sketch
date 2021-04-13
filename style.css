@@ -3,14 +3,14 @@
   padding: 0;
 }
 
-/* layout */
+/****** layout ******/
 html {
   background: url('./bg.png') repeat center center fixed;
 }
 body {
   font-family: 'Carter One', cursive, sans-serif;
   padding-top: 10px;
-  color: whitesmoke;
+  color: rgb(24, 24, 24);
 }
 #game-window {
   margin: 0 auto;
@@ -41,7 +41,7 @@ body {
 }
 #color-preview-bg {
   width: 50px;
-  height: 30px;
+  height: 40px;
   border: white 3px solid;
   border-radius: 3px;
 }
@@ -55,7 +55,7 @@ body {
   margin: 0 auto;
 }
 
-/* history palette */
+/****** history palette ******/
 #history-palette {
   margin: 10px auto;
   display: flex;
@@ -69,10 +69,11 @@ body {
   cursor: crosshair;
 }
 
-/* toolbar */
+/****** toolbar ******/
 #toolbar,
 #grid-container,
-#new-grid-form {
+#new-grid-form,
+#new-grid-zone {
   border-radius: 20px;
   border: rgb(255, 255, 238) outset 4px;
   background-color: rgb(236, 236, 204);
@@ -81,14 +82,34 @@ body {
   padding: 5px 10px;
   display: flex;
   justify-content: space-between;
-  align-items: center;
   box-sizing: border-box;
-  color: black;
 }
 #opacity-range {
   margin: auto 5px;
   height: 10px;
   cursor: pointer;
+}
+
+#eraser-btn {
+  height: 25px;
+  width: 25px;
+  padding: 0;
+  margin-right: 4px;
+  border-width: 0;
+  border-radius: 3px;
+  background-color: rgb(182, 182, 154);
+}
+#eraser-btn:hover {
+  background-color: rgb(204, 204, 170);
+}
+#eraser-btn.active {
+  background-color: rgb(24, 179, 190);
+}
+#eraser-btn img {
+  height: 20px;
+  width: 20px;
+  margin: 2px auto 0 auto;
+  object-fit: contain;
 }
 
 #paint-mode-switch-container {
@@ -168,7 +189,7 @@ body {
   cursor: pointer;
 }
 
-/* grid */
+/****** grid ******/
 #grid {
   display: grid;
   border: rgb(187, 187, 186) inset 4px;
@@ -183,7 +204,7 @@ body {
   align-items: center;
 }
 
-/* new grid form */
+/****** new grid form ******/
 @keyframes new-grid-opacity {
   from {
     opacity: 0;
@@ -193,18 +214,18 @@ body {
   }
 }
 #instruction {
-  transition: opacity 1s;
-  animation: new-grid-opacity 1s;
+  transition: opacity 0.5s;
+  animation: new-grid-opacity 0.5s;
   height: 35px;
   padding-top: 10px;
 }
 #new-grid-btn,
 #new-grid-submit {
+  color: whitesmoke;
   border: 3px outset rgb(10, 175, 190);
   background-color: rgb(14, 153, 163);
   border-radius: 5px;
   padding: 4px 6px;
-  color: inherit;
   height: max-content;
   font-weight: bold;
   cursor: pointer;
@@ -214,16 +235,6 @@ body {
   border: 3px outset rgb(7, 195, 212);
   background-color: rgb(14, 172, 184);
 }
-@keyframes form-bg {
-  0% {
-    border-color: transparent;
-    background-color: transparent;
-  }
-  100% {
-    border-color: rgb(255, 255, 238);
-    background-color: rgb(236, 236, 204);
-  }
-}
 #new-grid-zone,
 #new-grid-form {
   display: flex;
@@ -232,19 +243,14 @@ body {
   overflow: hidden;
   margin: auto;
 }
-#new-grid-form {
-  animation: form-bg 1s;
-  transition: border-color 1s, background-color 1s;
-}
 #new-grid-label {
-  transition: opacity 1s;
+  transition: opacity 0.5s;
   animation: new-grid-opacity 1s;
   font-weight: bold;
   display: grid;
   justify-items: start;
   grid-template-columns: repeat(3, auto);
   overflow: hidden;
-  color: black;
   padding-top: 5px;
   padding-bottom: 3px;
 }
@@ -260,14 +266,17 @@ body {
 }
 #new-grid-warning-msg {
   grid-column: span 3;
-  color: rgb(255, 87, 49);
+  color: rgb(255, 17, 17);
 }
 
-/* responsive */
+/****** responsive ******/
 @media screen and (max-width: 650px), screen and (max-height: 770px) {
+  #toolbar {
+    align-items: center;
+  }
   #color-preview-bg {
     width: 50px;
-    height: 23px;
+    height: 30px;
     border-width: 2px;
   }
   #game-window {
@@ -275,7 +284,6 @@ body {
   }
   #grid-container {
     height: 96vmin;
-    margin-top: 10px;
   }
   body {
     font-size: 11px;

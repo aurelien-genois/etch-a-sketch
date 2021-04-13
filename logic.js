@@ -1,3 +1,4 @@
+/****** helper functions ******/
 function RGBAToHex(rgba) {
   // adapt from CSS Tricks converter : https://css-tricks.com/converting-color-spaces-in-javascript/
   // Choose correct separator
@@ -105,9 +106,6 @@ const getAdjacentCells = (x, y) => {
   const leftCell = [x - 1, y];
   const rightCell = [x + 1, y];
 
-  // need to get the cells (array of Ids) around the target
-  // adjacent ids = target col -1/+1, target row -1/+1
-  // target col = grid-column-start; target row = grid-row-start:
   const aroundCellsIds = [topCell, bottomCell, leftCell, rightCell];
 
   return allCells.filter((cell) =>
@@ -118,33 +116,47 @@ const getAdjacentCells = (x, y) => {
   );
 };
 
+/****** paint functions ******/
 const draw = (button, target) => {
   if (button == 1) {
+    // check if the target is a cell (specially usefull when touch event)
     if (
       target != null &&
       target.parentElement != null &&
       target.parentElement.id === 'grid'
     ) {
-      const precColor = RGBAToHex(target.style.backgroundColor);
-      const resultColor = addHexColor(precColor, color);
-      target.style.backgroundColor = resultColor;
+      if (mode === 'erase') {
+        target.style.backgroundColor = '#ffffffff';
+      } else {
+        const precColor = RGBAToHex(target.style.backgroundColor);
+        const resultColor = addHexColor(precColor, color);
+        target.style.backgroundColor = resultColor;
+      }
     }
   }
   if (button == 2) {
-    target.style.backgroundColor = '#ffffffff';
+    // erase
+    if (
+      target != null &&
+      target.parentElement != null &&
+      target.parentElement.id === 'grid'
+    ) {
+      target.style.backgroundColor = '#ffffffff';
+    }
   }
 };
 
 const fill = (button, target) => {
   if (button == 1) {
+    // check if the target is a cell (specially usefull when touch event)
     if (
       target != null &&
       target.parentElement != null &&
       target.parentElement.id === 'grid'
     ) {
-      // let cellsToCheck = [e.target];
       const clickedTargetColor = target.style.backgroundColor;
 
+      // target col = grid-column-start; target row = grid-row-start:
       let aroundCells = getAdjacentCells(
         +target.style.gridRowStart,
         +target.style.gridColumnStart
@@ -154,19 +166,22 @@ const fill = (button, target) => {
       let cellsToCheck = [...aroundCells];
       // then add aroundCells for each cell to check
 
+      // prevent infinite loop when target color is already the color
+      // (without transparency because target color has no transparency)
       if (
         RGBAToHex(clickedTargetColor).substring(0, 7) == color.substring(0, 7)
       ) {
         console.log('same color');
-
         cellsToCheck = [];
       }
-      // const precColor = RGBAToHex(cell.style.backgroundColor);
+
       const precColor = RGBAToHex(clickedTargetColor);
       const resultColor = addHexColor(precColor, color);
       let count = 0;
       while (cellsToCheck.length > 0) {
         aroundCells.forEach((cell) => {
+          console.log(cellsToCheck.length);
+          // if this cell is the same color as target color, fill it and add its adjacent cells to cellsToCheck
           if (clickedTargetColor == cell.style.backgroundColor) {
             cell.style.backgroundColor = resultColor;
             let adjacentCells = getAdjacentCells(
@@ -174,6 +189,7 @@ const fill = (button, target) => {
               +cell.style.gridColumnStart
             );
             for (var i = 0; i < cellsToCheck.length; i++) {
+              // remove cells from adjacentCells if already filled or same color
               for (var j = 0; j < adjacentCells.length; j++) {
                 if (
                   RGBAToHex(adjacentCells[j].style.backgroundColor) ==
@@ -202,9 +218,10 @@ const fill = (button, target) => {
               }
             }
           }
-          // check adjacent cells only if this cell is the same color e.target
         });
         aroundCells = [...cellsToCheck];
+        // with the aroundCells array, the cellsToCheck length is not too great (always less than 50) but while loops more times
+        // if aroundCells array is not used (use directly cellsToCheck), while loops less times but cellsToCheck lenght can be more 400
         if (cellsToCheck.length > 0) {
           count++;
         }
@@ -219,7 +236,14 @@ const fill = (button, target) => {
     }
   }
   if (button == 2) {
-    target.style.backgroundColor = '#ffffffff';
+    // erase
+    if (
+      target != null &&
+      target.parentElement != null &&
+      target.parentElement.id === 'grid'
+    ) {
+      target.style.backgroundColor = '#ffffffff';
+    }
   }
 };
 
@@ -231,6 +255,8 @@ const paint = (e) => {
     case 'fill':
       fill(e.buttons, e.target);
       break;
+    case 'erase':
+      draw(e.buttons, e.target);
   }
 };
 const paintTouch = (e) => {
@@ -247,9 +273,12 @@ const paintTouch = (e) => {
     case 'fill':
       fill(1, realTarget);
       break;
+    case 'erase':
+      draw(2, realTarget);
   }
 };
 
+/****** grid creation functions ******/
 const cellCreation = (colIndex, rowIndex) => {
   let cell = document.createElement('div');
   cell.style.backgroundColor = '#ffffffff';
@@ -276,8 +305,9 @@ const gridCreation = (gridUnitSize) => {
     }
   }
   // touchEvent for mobile
-  // on the grid, so it can calculate the realTarget from it each time the touchmove is fired
+  // on the grid, so it can calculate the realTarget from it each time the touch event is fired
   grid.addEventListener('touchmove', paintTouch);
+  grid.addEventListener('touchstart', paintTouch);
 };
 
 const GenerateNewGrid = (newGridUnit) => {
@@ -288,6 +318,7 @@ const GenerateNewGrid = (newGridUnit) => {
   gridUnit = newGridUnit;
 };
 
+/****** new grid functions ******/
 const createNewGridForm = () => {
   const form = document.createElement('form');
   form.id = 'new-grid-form';
@@ -324,48 +355,27 @@ const createNewGridForm = () => {
 };
 
 const displayNewGridForm = () => {
+  const newGridZone = document.querySelector('#new-grid-zone');
   const newGridForm = createNewGridForm();
   newGridForm.addEventListener('submit', (e) => {
     const data = new FormData(e.target);
     const newGridSize = data.get('new-grid-size-input');
     e.preventDefault();
     GenerateNewGrid(newGridSize);
-
+    // for animated fade out:
     document.querySelector('#new-grid-label').style.opacity = '0';
-    document.querySelector('#new-grid-form').style.borderColor = 'transparent';
-    document.querySelector('#new-grid-form').style.backgroundColor =
-      'transparent';
     setTimeout(() => {
       newGridForm.replaceWith(newGridZone);
-    }, 1000);
+    }, 500);
   });
-  newGridZone.replaceWith(newGridForm);
+  document.querySelector('#instruction').style.opacity = '0';
+  setTimeout(() => {
+    document.querySelector('#instruction').style.opacity = '1';
+    newGridZone.replaceWith(newGridForm);
+  }, 500);
 };
 
-const populateHistoryPalette = (colorValue) => {
-  const colorCell = document.createElement('div');
-  colorCell.classList.add('used-color');
-  colorCell.style.background = colorValue;
-  colorCell.addEventListener('click', (e) => {
-    // the color from background style is in RGB, color input need an Hex color
-    color = RGBAToHex(e.target.style.backgroundColor);
-    // apply current opacity to the color
-    // or reset opacityRange value
-    // opacityRange.value = 100;
-    colorPicker.value = color.substr(0, 7);
-    changeOpacity();
-  });
-  if (historyPalette.children.length >= 21) {
-    historyPalette.removeChild(historyPalette.lastElementChild);
-  }
-  historyPalette.prepend(colorCell);
-};
-
-const updateColorPreview = () => {
-  const colorPreview = document.querySelector('#color-preview');
-  colorPreview.style.backgroundColor = color;
-};
-
+/****** tools functions ******/
 const changeOpacity = () => {
   const opacityValue = opacityRange.value / 100;
 
@@ -380,63 +390,111 @@ const changeOpacity = () => {
   updateColorPreview();
 };
 
-const grid = document.querySelector('#grid');
-grid.addEventListener('mouseover', (e) => {
-  // to update the cursor
-  if (mode === 'fill') {
-    grid.style.cursor = "url('fill.png') 0 50, pointer";
+const setColorPickerColor = (e) => {
+  color = e.target.value;
+  populateHistoryPalette(color);
+  changeOpacity();
+};
+
+const toggleEraser = () => {
+  if (mode === 'erase') {
+    eraserBtn.classList.remove('active');
+    if (paintModeSwitch.checked) {
+      mode = 'fill';
+    } else {
+      mode = 'pen';
+    }
+  } else {
+    mode = 'erase';
+    eraserBtn.classList.add('active');
+  }
+};
+
+const toggleFill = () => {
+  const paintModeSwitchText = document.querySelector('#paint-mode-switch-text');
+  if (mode === 'erase') {
+    eraserBtn.classList.remove('active');
+  }
+  // replace (!mode === 'fill") with (!paintModeSwitch.checked)
+  // because if mode is 'erase', we check if the switch is checked
+  // the checked property is set before the callBack function
+  if (!paintModeSwitch.checked) {
+    paintModeSwitchText.textContent = 'Pen';
+    mode = 'pen';
+  } else {
+    paintModeSwitchText.textContent = 'Fill';
+    mode = 'fill';
+  }
+};
+
+/****** interface functions ******/
+const populateHistoryPalette = (colorValue) => {
+  const historyPalette = document.querySelector('#history-palette');
+  const colorCell = document.createElement('div');
+  colorCell.classList.add('used-color');
+  colorCell.style.background = colorValue;
+  colorCell.addEventListener('click', (e) => {
+    // the color from background style is in RGB, color input need an Hex color
+    color = RGBAToHex(e.target.style.backgroundColor);
+    colorPicker.value = color.substr(0, 7);
+    // apply current opacity to the color
+    changeOpacity();
+  });
+  if (historyPalette.children.length >= 21) {
+    historyPalette.removeChild(historyPalette.lastElementChild);
+  }
+  historyPalette.prepend(colorCell);
+};
+
+const updateColorPreview = () => {
+  const colorPreview = document.querySelector('#color-preview');
+  colorPreview.style.backgroundColor = color;
+};
+
+const updateMouseCursor = (e) => {
+  if (mode === 'erase') {
+    grid.style.cursor = "url('eraser.png') 0 50, pointer";
   } else {
     switch (e.buttons) {
       case 1:
       case 0:
-        grid.style.cursor = "url('pen.png') 0 50, pointer";
+        if (mode === 'fill') {
+          grid.style.cursor = "url('fill.png') 0 50, pointer";
+        } else {
+          grid.style.cursor = "url('pen.png') 0 50, pointer";
+        }
         break;
       case 2:
         grid.style.cursor = "url('eraser.png') 0 50, pointer";
     }
   }
-});
+};
+
+/****** Set non dynamic Event Listeners ******/
+const grid = document.querySelector('#grid');
+grid.addEventListener('mouseover', updateMouseCursor);
 
 const newGridBtn = document.querySelector('#new-grid-btn');
-const newGridZone = document.querySelector('#new-grid-zone');
 newGridBtn.addEventListener('click', displayNewGridForm);
 
 const colorPicker = document.querySelector('#color-picker');
-const historyPalette = document.querySelector('#history-palette');
-colorPicker.addEventListener('change', (e) => {
-  color = e.target.value;
-  populateHistoryPalette(color);
-  changeOpacity();
-});
+colorPicker.addEventListener('change', setColorPickerColor);
 
 const opacityRange = document.querySelector('#opacity-range');
 opacityRange.addEventListener('change', changeOpacity);
 
-let mode = 'pen';
+const eraserBtn = document.querySelector('#eraser-btn');
+eraserBtn.addEventListener('click', toggleEraser);
 
 const paintModeSwitch = document.querySelector('#paint-mode-switch');
-const paintModeSwitchText = document.querySelector('#paint-mode-switch-text');
 paintModeSwitch.checked = false;
-paintModeSwitch.addEventListener('click', () => {
-  if (mode === 'fill') {
-    // strangely, the checkbox is not really checked (maybe because the onclick="return false" on its parent label)
-    paintModeSwitch.checked = false;
-    paintModeSwitchText.textContent = 'Pen';
-    mode = 'pen';
-  } else {
-    paintModeSwitch.checked = true;
-    paintModeSwitchText.textContent = 'Fill';
-    mode = 'fill';
-  }
-});
+paintModeSwitch.addEventListener('click', toggleFill);
 
-// default values
+/****** Initials values ******/
+let mode = 'pen';
 let color = colorPicker.value + 'ff';
 updateColorPreview();
 opacityRange.value = 100;
-
-let gridUnit = 16;
-gridCreation(gridUnit);
 
 [
   '#eb4034',
@@ -447,3 +505,6 @@ gridCreation(gridUnit);
   '#ffffff',
   '#000000',
 ].forEach((color) => populateHistoryPalette(color));
+
+let gridUnit = 16;
+gridCreation(gridUnit);
