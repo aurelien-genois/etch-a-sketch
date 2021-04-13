@@ -118,99 +118,134 @@ const getAdjacentCells = (x, y) => {
   );
 };
 
+const draw = (button, target) => {
+  if (button == 1) {
+    if (
+      target != null &&
+      target.parentElement != null &&
+      target.parentElement.id === 'grid'
+    ) {
+      const precColor = RGBAToHex(target.style.backgroundColor);
+      const resultColor = addHexColor(precColor, color);
+      target.style.backgroundColor = resultColor;
+    }
+  }
+  if (button == 2) {
+    target.style.backgroundColor = '#ffffffff';
+  }
+};
+
+const fill = (button, target) => {
+  if (button == 1) {
+    if (
+      target != null &&
+      target.parentElement != null &&
+      target.parentElement.id === 'grid'
+    ) {
+      // let cellsToCheck = [e.target];
+      const clickedTargetColor = target.style.backgroundColor;
+
+      let aroundCells = getAdjacentCells(
+        +target.style.gridRowStart,
+        +target.style.gridColumnStart
+      );
+
+      // at the start, aroundCells of e.target are the only cells to check
+      let cellsToCheck = [...aroundCells];
+      // then add aroundCells for each cell to check
+
+      if (
+        RGBAToHex(clickedTargetColor).substring(0, 7) == color.substring(0, 7)
+      ) {
+        console.log('same color');
+
+        cellsToCheck = [];
+      }
+      // const precColor = RGBAToHex(cell.style.backgroundColor);
+      const precColor = RGBAToHex(clickedTargetColor);
+      const resultColor = addHexColor(precColor, color);
+      let count = 0;
+      while (cellsToCheck.length > 0) {
+        aroundCells.forEach((cell) => {
+          if (clickedTargetColor == cell.style.backgroundColor) {
+            cell.style.backgroundColor = resultColor;
+            let adjacentCells = getAdjacentCells(
+              +cell.style.gridRowStart,
+              +cell.style.gridColumnStart
+            );
+            for (var i = 0; i < cellsToCheck.length; i++) {
+              for (var j = 0; j < adjacentCells.length; j++) {
+                if (
+                  RGBAToHex(adjacentCells[j].style.backgroundColor) ==
+                  resultColor
+                ) {
+                  // remove adjacent cell if already the same color as color
+                  adjacentCells.splice(j, 1);
+                }
+                if (cellsToCheck[i] === adjacentCells[j]) {
+                  // remove adjacent cell if already in cellToCheck
+                  adjacentCells.splice(j, 1);
+                }
+              }
+              if (cellsToCheck[i] === cell) {
+                // remove this cell from cellsToCheck
+                cellsToCheck.splice(i, 1);
+              }
+            }
+            // add this cell adjacents cells to cellsToCheck
+            cellsToCheck.push(...adjacentCells);
+          } else {
+            for (var i = 0; i < cellsToCheck.length; i++) {
+              if (cellsToCheck[i] === cell) {
+                // remove this cell from cellsToCheck
+                cellsToCheck.splice(i, 1);
+              }
+            }
+          }
+          // check adjacent cells only if this cell is the same color e.target
+        });
+        aroundCells = [...cellsToCheck];
+        if (cellsToCheck.length > 0) {
+          count++;
+        }
+        // prevent an infinite loop if to much fill
+        if (count > 1000) {
+          cellsToCheck = [];
+          break;
+        }
+        console.log('count', count);
+      }
+      target.style.backgroundColor = resultColor;
+    }
+  }
+  if (button == 2) {
+    target.style.backgroundColor = '#ffffffff';
+  }
+};
+
 const paint = (e) => {
   switch (mode) {
     case 'pen':
-      if (e.buttons == 1) {
-        const precColor = RGBAToHex(e.target.style.backgroundColor);
-        const resultColor = addHexColor(precColor, color);
-        e.target.style.backgroundColor = resultColor;
-      }
-      if (e.buttons == 2) {
-        e.target.style.backgroundColor = '#ffffffff';
-      }
+      draw(e.buttons, e.target);
       break;
     case 'fill':
-      if (e.buttons == 1) {
-        // let cellsToCheck = [e.target];
-        const clickedTargetColor = e.target.style.backgroundColor;
-
-        let aroundCells = getAdjacentCells(
-          +e.target.style.gridRowStart,
-          +e.target.style.gridColumnStart
-        );
-
-        // at the start, aroundCells of e.target are the only cells to check
-        let cellsToCheck = [...aroundCells];
-        // then add aroundCells for each cell to check
-
-        if (
-          RGBAToHex(clickedTargetColor).substring(0, 7) == color.substring(0, 7)
-        ) {
-          console.log('same color');
-
-          cellsToCheck = [];
-        }
-        // const precColor = RGBAToHex(cell.style.backgroundColor);
-        const precColor = RGBAToHex(clickedTargetColor);
-        const resultColor = addHexColor(precColor, color);
-        let count = 0;
-        while (cellsToCheck.length > 0) {
-          aroundCells.forEach((cell) => {
-            if (clickedTargetColor == cell.style.backgroundColor) {
-              cell.style.backgroundColor = resultColor;
-              let adjacentCells = getAdjacentCells(
-                +cell.style.gridRowStart,
-                +cell.style.gridColumnStart
-              );
-              for (var i = 0; i < cellsToCheck.length; i++) {
-                for (var j = 0; j < adjacentCells.length; j++) {
-                  if (
-                    RGBAToHex(adjacentCells[j].style.backgroundColor) ==
-                    resultColor
-                  ) {
-                    // remove adjacent cell if already the same color as color
-                    adjacentCells.splice(j, 1);
-                  }
-                  if (cellsToCheck[i] === adjacentCells[j]) {
-                    // remove adjacent cell if already in cellToCheck
-                    adjacentCells.splice(j, 1);
-                  }
-                }
-                if (cellsToCheck[i] === cell) {
-                  // remove this cell from cellsToCheck
-                  cellsToCheck.splice(i, 1);
-                }
-              }
-              // add this cell adjacents cells to cellsToCheck
-              cellsToCheck.push(...adjacentCells);
-            } else {
-              for (var i = 0; i < cellsToCheck.length; i++) {
-                if (cellsToCheck[i] === cell) {
-                  // remove this cell from cellsToCheck
-                  cellsToCheck.splice(i, 1);
-                }
-              }
-            }
-            // check adjacent cells only if this cell is the same color e.target
-          });
-          aroundCells = [...cellsToCheck];
-          if (cellsToCheck.length > 0) {
-            count++;
-          }
-          // prevent an infinite loop if to much fill
-          if (count > 1000) {
-            cellsToCheck = [];
-            break;
-          }
-          console.log('count', count);
-        }
-
-        e.target.style.backgroundColor = resultColor;
-      }
-      if (e.buttons == 2) {
-        e.target.style.backgroundColor = '#ffffffff';
-      }
+      fill(e.buttons, e.target);
+      break;
+  }
+};
+const paintTouch = (e) => {
+  e.preventDefault();
+  let myLocation = e.changedTouches[0];
+  let realTarget = document.elementFromPoint(
+    myLocation.clientX,
+    myLocation.clientY
+  );
+  switch (mode) {
+    case 'pen':
+      draw(1, realTarget);
+      break;
+    case 'fill':
+      fill(1, realTarget);
       break;
   }
 };
@@ -220,9 +255,7 @@ const cellCreation = (colIndex, rowIndex) => {
   cell.style.backgroundColor = '#ffffffff';
   cell.style.gridColumn = colIndex;
   cell.style.gridRow = rowIndex;
-  ['mouseover', 'mousedown'].forEach((event) =>
-    cell.addEventListener(event, paint)
-  );
+  ['mouseover', 'mousedown'].forEach((e) => cell.addEventListener(e, paint));
   return cell;
 };
 
@@ -242,6 +275,9 @@ const gridCreation = (gridUnitSize) => {
       col -= gridUnitSize;
     }
   }
+  // touchEvent for mobile
+  // on the grid, so it can calculate the realTarget from it each time the touchmove is fired
+  grid.addEventListener('touchmove', paintTouch);
 };
 
 const GenerateNewGrid = (newGridUnit) => {
