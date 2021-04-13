@@ -8,10 +8,9 @@ html {
   background: url('./bg.png') repeat center center fixed;
 }
 body {
+  font-family: 'Carter One', cursive, sans-serif;
   padding-top: 10px;
   color: whitesmoke;
-  font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande',
-    'Lucida Sans', Arial, sans-serif;
 }
 #game-window {
   margin: 0 auto;
@@ -26,23 +25,19 @@ body {
 #title {
   background-image: linear-gradient(
     to left,
-    rgb(240, 115, 240),
-    rgb(158, 84, 255),
-    rgb(86, 140, 255),
+    rgb(255, 58, 140),
+    rgb(180, 50, 255),
+    rgb(94, 204, 255),
     rgb(11, 214, 11),
-    yellow,
+    rgb(208, 255, 0),
     orange,
     red
   );
   color: transparent;
-  /* -webkit-text-stroke: 0.5px black; */
+  -webkit-text-stroke: 1px black;
   background-clip: text;
-  font-weight: bold;
   -webkit-background-clip: text;
   display: inline;
-}
-#instruction {
-  font-weight: bold;
 }
 #color-preview-bg {
   width: 50px;
