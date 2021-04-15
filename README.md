@@ -2,16 +2,16 @@
 <h2 align="center"><a  href="https://aurelien-genois.github.io/etch-a-sketch/">Live Demo</a></h2>
 
 ## Description
-The [third Odin project](https://www.theodinproject.com/paths/foundations/courses/foundations/lessons/etch-a-sketch-project) for practice basic JavaScript (Arrays, Loops, DOM manipulation, ...). The goal of this project was initially to practice arrays, loops and DOM manipulation but I took this project to learn also how to combine colors (when changing opacity), how to change the mouse cursor and how to manage touch event (for drawing on mobile or tablet).
+The [third Odin project](https://www.theodinproject.com/paths/foundations/courses/foundations/lessons/etch-a-sketch-project) is a drawing grid without \<canvas\> (and CanvasRenderingContext2D methods) for practice basic JavaScript (Arrays, Loops, DOM manipulation, ...). I took this project to learn also how to combine colors (when changing opacity), how to change the mouse cursor and how to manage touch event (for drawing on mobile or tablet).
 
 ## Features
 <p align="center">
 <img src="screenshot-1.gif" alt="screenshot" width="50%"/><br>
 </p>
 
-- Can draw in the grid with your mouse (pen) by holding right click
+- Can draw in the grid with your mouse (pen) by holding left click
 - Can draw and fill by touching with finger
-- Can erase with your mouse (eraser) by holding left click
+- Can erase with your mouse (eraser) by holding right click
 - Can choose a color from the color picker or the history palette
  
  <br>
@@ -43,16 +43,14 @@ The [third Odin project](https://www.theodinproject.com/paths/foundations/course
 - An abstract square-patterned background reflects the pixel art function of this project and allows the perception of the opacity level of the current color in the current color box
 
 ## Challenges
-The goal of this project was : DOM manipulation with arrays of DOM element (and with CSS grid)
+The goal of this project was initially to practice arrays, loops and DOM manipulation, I wanted to go further to learn more.
 
-I wanted to learn more on :
+Changing the opacity of the current color was pretty simple but applying the non-opaque color on the grid was quite a challenge because it requires to convert colors from RGB format to Hex format (and vice versa) and to use additive mode to combine the color added with the current color.
 
-color additive for opacity (color format conversion)
+The fill tool was also interesting to implement, by checking the adjacent cells color of the clicked cells and then their adjacents cells too until there is no more adjacent cells which has the same color as the clicked cell. This methods is not optimal because it has low performance when the grid is greater than 30\*30 length
 
-fill mode // still not optimal because low performance with great grid) 
+The mouse cursor icon changes according to the cursor location (over the grid) and to the drawing mode (pen, fill, erase), which was fun to learn (especially the CSS cursor properties).
 
-update mouse cursor icon and cursor position
+CSS is used also to create the switch button for changing the mode between pen and fill.
 
-switch button with css
-
-Touch event
+Finally I added touch events for allowing drawing on mobile/tablet. This gives me the occasion to learn touchstart, touchmove and touchend events, which will be certainly usefull for future projects.
