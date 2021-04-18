@@ -9,8 +9,7 @@ The [third Odin project](https://www.theodinproject.com/paths/foundations/course
 <img src="screenshot-1.gif" alt="screenshot" width="50%"/><br>
 </p>
 
-- Can draw in the grid with your mouse (pen) by holding left click
-- Can draw and fill by touching with finger
+- Can draw in the grid with your mouse (pen) by holding left click or by touching with finger
 - Can erase with your mouse (eraser) by holding right click
 - Can choose a color from the color picker or the history palette
  
@@ -22,7 +21,8 @@ The [third Odin project](https://www.theodinproject.com/paths/foundations/course
 
 - Can change the opacity level, so the pen color is combined to the current grid cell color (additive mode)
 - The opacity level is kept when changing the pen color (with the color picker or the history palette)
-- Can fill an area of same color cells (opacity stills apply) when fill mode is activated with a switch checkbox
+- Can activate fill mode with a switch checkbox
+- Can fill an area of same color cells (opacity stills apply) with left click or by touching with finger
 - An erase button can turn the pen/fill to an eraser (necessary for touch screens)
  
  <br>
