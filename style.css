@@ -5,7 +5,7 @@
 
 /****** layout ******/
 html {
-  background: url('./bg.png') repeat center center fixed;
+  background: url('./bg.png') repeat center fixed;
 }
 body {
   font-family: 'Carter One', cursive, sans-serif;
