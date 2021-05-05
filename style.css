@@ -284,17 +284,17 @@ body {
 #footer p {
   text-align: center;
   color: whitesmoke;
-  margin: 1rem auto;
+  margin: 1rem 10vw;
 }
 #footer a {
-  color: var(--blue-roboto);
+  color: rgb(0, 132, 255);
   text-decoration: none;
 }
 #footer a:visited {
-  color: var(--orange-fofo);
+  color: rgb(148, 42, 248);
 }
 #footer a:hover {
-  color: var(--yellow-gold);
+  color: rgb(104, 180, 250);
 }
 
 /****** responsive ******/
@@ -342,6 +342,9 @@ body {
   #color-picker {
     width: 16px;
     height: 16px;
+  }
+  footer {
+    font-size: 4.5vmin;
   }
 }
 @media screen and (max-height: 900px) and (min-width: 500px) and (min-height: 600px) {
