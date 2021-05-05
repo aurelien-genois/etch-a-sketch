@@ -9,11 +9,14 @@ html {
 }
 body {
   font-family: 'Carter One', cursive, sans-serif;
-  padding-top: 10px;
   color: rgb(24, 24, 24);
+  height: 100vh;
+  display: grid;
+  grid-template-rows: 1fr auto;
+  overflow: visible;
 }
 #game-window {
-  margin: 0 auto;
+  margin: 10px auto;
   text-align: center;
   width: 70vmin;
 }
@@ -267,6 +270,31 @@ body {
 #new-grid-warning-msg {
   grid-column: span 3;
   color: rgb(255, 17, 17);
+}
+
+/******** footer ********/
+#footer {
+  background: black;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 10px;
+}
+#footer p {
+  text-align: center;
+  color: whitesmoke;
+  margin: 1rem auto;
+}
+#footer a {
+  color: var(--blue-roboto);
+  text-decoration: none;
+}
+#footer a:visited {
+  color: var(--orange-fofo);
+}
+#footer a:hover {
+  color: var(--yellow-gold);
 }
 
 /****** responsive ******/
